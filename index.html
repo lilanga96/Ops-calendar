@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Calendars</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+        color: #333;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    h1 {
+        color: #e60000;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+    
+    /* Flex layout for departments, wrapping on small screens */
+    .departments {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .department-btn {
+        background-color: #e60000;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        cursor: pointer;
+        font-size: 1em;
+        border-radius: 5px;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    
+    .department-btn:hover {
+        background-color: #b30000;
+    }
+    
+
+    .all-calendars {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        column-gap: 30px;
+    }
+    
+    .calendar {
+        display: flex;
+        gap: 5px;
+        flex-direction: column;
+        align-items: center;
+        background-color: white;
+        border: 1px solid #e6e6e6;
+        border-radius: 5px;
+        padding: 10px;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .calendar-header h2 {
+        font-size: 1.2em;
+        margin: 0;
+        color: #e60000;
+    }
+    
+    .day-names, .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-top: 10px;
+    }
+    
+    .day-name {
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .day {
+        padding: 10px;
+        background-color: #f2f2f2;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+    
+    .today {
+        background-color: #e60000;
+        color: white;
+    }
+    
+    .has-task {
+        background-color: yellow !important;
+    }
+    
+    /* Modal responsiveness */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border: 1px solid #e6e6e6;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 300px;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal.active {
+        display: block;
+    }
+    
+    .modal-header {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #e60000;
+    }
+    
+    .task-list {
+        list-style-type: none;
+        padding: 0;
+        max-height: 150px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    .task-item {
+        padding: 5px;
+        border-bottom: 1px solid #e6e6e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .close-btn, .add-task-btn {
+        background-color: #e60000;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    
+    input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+    
+    /* Auth modal */
+    .auth-modal {
+        background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease; 
+    }
+    
+    .auth-forms {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .auth-forms input {
+        margin: 10px 0;
+        padding: 12px;
+        font-size: 1em;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .auth-forms button {
+        padding: 12px;
+        font-size: 1em;
+        color: #fff;
+        background-color: #e60000;
+        border: none;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .auth-forms button:hover {
+        background-color: #b30000;
+    }
+    
+    /* Logout button for mobile display */
+    .logout-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background-color: transparent;
+        border: none;
+        color: red;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    
+    .logout-btn .arrow {
+        margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.5em;
+        }
+    
+        .department-btn {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+    
+        .calendar {
+            padding: 15px;
+            max-width: 100%;
+        }
+    
+        .day-names, .calendar-grid {
+            grid-template-columns: repeat(7, minmax(30px, 1fr));
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .day {
+            padding: 5px;
+            font-size: 0.8em;
+        }
+    
+        .department-btn {
+            padding: 8px 15px;
+            font-size: 0.8em;
+        }
+    }
+
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <button id="auth-btn" class="auth-btn logout-btn" onclick="handleAuthAction()">
+            <span class="arrow">&larr;</span> Logout
+        </button>
+
+        <h1>Department Calendars</h1>
+
+        <div id="authModal" class="modal">
+            <div class="auth-modal">
+                <div class="modal-header">Login or Sign Up</div>
+                <div class="auth-forms">
+                    <input type="email" id="email" placeholder="Email" required />
+                    <input type="password" id="password" placeholder="Password" required />
+                    <button onclick="signIn()">Login</button>
+                    <button onclick="signUp()">Sign Up</button>
+                </div>
+                <button class="close-btn" onclick="closeAuthModal()">Close</button>
+            </div>
+        </div>
+
+        <div class="departments">
+            <a href="office.html" class="department-btn">Office</a>
+            <a href="construction.html" class="department-btn">Construction</a>
+            <a href="plumbing.html" class="department-btn">Plumbing</a>
+            <a href="amayeza.html" class="department-btn">Amayeza</a>
+            <a href="bnb.html" class="department-btn">BnB</a>
+            <a href="gogo.html" class="department-btn">Gogo</a>
+        </div>
+
+        <div class="all-calendars" id="allCalendars"></div>
+
+        <div id="taskModal" class="modal">
+            <div class="modal-header">Tasks for <span id="modalDate"></span></div>
+            <ul id="taskList" class="task-list"></ul>
+            <input type="text" id="taskInput" placeholder="Add a new task" />
+            <div class="modal-footer">
+                <button class="add-task-btn" onclick="addTask()">Add Task</button>
+                <button class="close-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
+    <script>
+        
+    const SUPABASE_URL = 'https://atdtvpgbvxmkmsjiakxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZHR2cGdidnhta21zamlha3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0NTUyNzYsImV4cCI6MjA0NzAzMTI3Nn0.NY_j9o7-sUgJe44x_9K8gTcYIJBt5F7vH2KgTdKWtoc';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const tasks = {};
+        let currentDayKey = "";
+        let isAuthenticated = false; 
+
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                if (!isAuthenticated) {
+                    event.preventDefault();
+                    showAuthModal();
+                }
+            });
+        });
+
+        function showAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                console.error('Sign Up Error:', error.message);
+            } else {
+                alert('Sign up successful.');
+                signIn(email, password);
+            }
+        }
+
+        async function signIn(email = null, password = null) {
+            email = email || document.getElementById('email').value;
+            password = password || document.getElementById('password').value;
+
+            const { session, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.error('Login Error:', error.message);
+            } else {
+                isAuthenticated = true;
+                closeAuthModal();
+                updateAuthButton();
+                alert('Login successful!');
+            }
+        }
+
+        async function checkUserSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            isAuthenticated = !!session;
+            updateAuthButton();
+
+            if (isAuthenticated) {
+                closeAuthModal();
+            } 
+        }
+
+        checkUserSession();
+
+        function updateAuthButton() {
+            const authBtn = document.getElementById('auth-btn');
+            if (authBtn) {
+                authBtn.innerHTML = isAuthenticated ? '<span class="arrow">&larr;</span> Logout' : '<span class="arrow">&larr;</span> Login';
+            }
+        }
+
+        function handleAuthAction() {
+            if (isAuthenticated) {
+                signOut();
+            } else {
+                showAuthModal();
+            }
+        }
+
+        async function signOut() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error("Logout error:", error.message);
+            } else {
+                isAuthenticated = false;
+                updateAuthButton();
+                alert('Logged out successfully.');
+            }
+        }
+
+        async function loadTasks() {
+            const { data, error } = await supabase.from('tasks').select('*');
+            
+            if (error) {
+                console.error('Error fetching tasks:', error);
+                return;
+            }
+            
+            data.forEach(task => {
+                if (!tasks[task.dayKey]) {
+                    tasks[task.dayKey] = [];
+                }
+                tasks[task.dayKey].push(task.text);
+            });
+
+            renderYearCalendar();
+        }
+
+        function renderYearCalendar() {
+            const allCalendars = document.getElementById('allCalendars');
+            allCalendars.innerHTML = '';
+            const today = new Date();
+            const todayMonth = today.getMonth();
+            const todayDate = today.getDate();
+
+            for (let month = 0; month < 12; month++) {
+                const calendar = document.createElement('div');
+                calendar.classList.add('calendar');
+                
+                const header = document.createElement('div');
+                header.classList.add('calendar-header');
+                const date = new Date(today.getFullYear(), month);
+                header.innerHTML = `<h2>${date.toLocaleString('default', { month: 'long' })}</h2>`;
+                calendar.appendChild(header);
+
+                const dayNames = document.createElement('div');
+                dayNames.classList.add('day-names');
+                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+                    const dayName = document.createElement('div');
+                    dayName.classList.add('day-name');
+                    dayName.innerText = day;
+                    dayNames.appendChild(dayName);
+                });
+                calendar.appendChild(dayNames);
+
+                const grid = document.createElement('div');
+                grid.classList.add('calendar-grid');
+
+                const firstDay = new Date(date.getFullYear(), month, 1).getDay();
+                const daysInMonth = new Date(date.getFullYear(), month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.classList.add('day');
+                    grid.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.classList.add('day');
+                    dayCell.innerText = day;
+
+                    if (month === todayMonth && day === todayDate) {
+                        dayCell.classList.add('today');
+                    }
+
+                    const dayKey = `${month + 1}-${day}-${today.getFullYear()}`;
+                    if (tasks[dayKey] && tasks[dayKey].length > 0) {
+                        dayCell.classList.add('has-task');
+                    }
+
+                    dayCell.addEventListener('click', function() {
+                        showTaskModal(dayKey);
+                    });
+
+                    grid.appendChild(dayCell);
+                }
+
+                calendar.appendChild(grid);
+                allCalendars.appendChild(calendar);
+            }
+        }
+
+        function showTaskModal(dayKey) {
+            currentDayKey = dayKey;
+            const modal = document.getElementById('taskModal');
+            const modalDate = document.getElementById('modalDate');
+            const taskList = document.getElementById('taskList');
+
+            modalDate.innerText = dayKey;
+            taskList.innerHTML = ''; 
+
+            if (!tasks[dayKey] || tasks[dayKey].length === 0) {
+                const noTaskItem = document.createElement('li');
+                noTaskItem.classList.add('task-item');
+                noTaskItem.innerText = 'No tasks available.';
+                taskList.appendChild(noTaskItem);
+            } else {
+                tasks[dayKey].forEach((task, index) => {
+                    const taskItem = document.createElement('li');
+                    taskItem.classList.add('task-item');
+                    taskItem.innerHTML = `${task} <button onclick="deleteTask(${index})">Delete</button>`;
+                    taskList.appendChild(taskItem);
+                });
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        async function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const newTask = taskInput.value.trim();
+
+            if (!newTask) return;
+
+            tasks[currentDayKey] = tasks[currentDayKey] || [];
+            tasks[currentDayKey].push(newTask);
+            taskInput.value = '';
+
+            const { error } = await supabase.from('tasks').insert([{ dayKey: currentDayKey, text: newTask }]);
+            if (error) {
+                console.error('Error adding task:', error);
+                return;
+            }
+
+            showTaskModal(currentDayKey);
+            renderYearCalendar();
+        }
+
+        async function deleteTask(taskIndex) {
+            const taskToDelete = tasks[currentDayKey][taskIndex];
+            tasks[currentDayKey].splice(taskIndex, 1);
+
+            const { error } = await supabase.from('tasks')
+                .delete()
+                .eq('dayKey', currentDayKey)
+                .eq('text', taskToDelete);
+
+            if (error) {
+                console.error('Error deleting task:', error);
+                return;
+            }
+
+            showTaskModal(currentDayKey);
+            renderYearCalendar();
+        }
+
+        loadTasks();
+    </script>
+</body>
+
+    </html>

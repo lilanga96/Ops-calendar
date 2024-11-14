@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultations</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+    
+        body {
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    
+        .back{
+             text-align: left;
+           
+        
+            
+            
+        }
+    
+        .back i{
+            color:#e60000 ;
+           font-size: 25px;
+           
+        }
+    
+       
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+    
+        h3 {
+            color: #B22222; 
+            margin-bottom: 20px;
+        }
+    
+       
+        .input-form {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+    
+        .input-form input[type="text"],
+        .input-form input[type="time"],
+        .input-form input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #B22222;
+            border-radius: 4px;
+        }
+    
+        #add-entry-btn {
+            padding: 10px 15px;
+            background-color: #B22222;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        #add-entry-btn:hover {
+            background-color: #8b1a1a; 
+        }
+    
+        
+        #consultation-table-container {
+            overflow-x: auto;
+        }
+    
+        #consultation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+    
+        #consultation-table thead tr {
+            background-color: #B22222;
+            color: #fff;
+        }
+    
+        #consultation-table th,
+        #consultation-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        #consultation-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    
+        #consultation-table tr:hover {
+            background-color: #ffe6e6; 
+        }
+    
+        #consultation-table td {
+            color: #333;
+        }
+    
+       
+        @media (max-width: 600px) {
+            .input-form {
+                flex-direction: column;
+            }
+    
+            .input-form input[type="text"],
+            .input-form input[type="time"],
+            .input-form input[type="date"] {
+                width: 100%;
+            }
+        }
+    </style>
+    
+    
+    
+    
+</head>
+<body>
+    <div class="container">
+        <div class="back">
+            <a href="gogo.html"> <i class="ri-arrow-left-fill"></i></a>
+        </div>
+        <h3>Private Consultation List</h3>
+
+        <div class="input-form">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="text" id="surname" placeholder="Surname" required>
+            <input type="text" id="town" placeholder="Town" required>
+            <input type="date" id="date" placeholder="Date" required>
+            <input type="time" id="time" required>
+            <button id="add-entry-btn">Add Entry</button>
+        </div>
+
+        <div id="consultation-table-container">
+            <table id="consultation-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Surname</th>
+                        <th>Town</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
+    <script>
+         const SUPABASE_URL = 'https://atdtvpgbvxmkmsjiakxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZHR2cGdidnhta21zamlha3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0NTUyNzYsImV4cCI6MjA0NzAzMTI3Nn0.NY_j9o7-sUgJe44x_9K8gTcYIJBt5F7vH2KgTdKWtoc';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const addEntryBtn = document.getElementById('add-entry-btn');
+        const consultationTable = document.getElementById('consultation-table').getElementsByTagName('tbody')[0];
+
+        
+        window.onload = async () => {
+            const { data: consultations, error } = await supabase.from('consultations').select();
+            if (error) {
+                console.error("Error fetching consultations:", error);
+            } else {
+                consultations.forEach(consultation => addTableRow(consultation));
+            }
+        };
+
+       
+        function addTableRow(consultation) {
+            const newRow = consultationTable.insertRow();
+            newRow.insertCell(0).textContent = consultation.name;
+            newRow.insertCell(1).textContent = consultation.surname;
+            newRow.insertCell(2).textContent = consultation.town;
+            newRow.insertCell(3).textContent = consultation.date;
+            newRow.insertCell(4).textContent = consultation.time;
+        }
+
+       
+        addEntryBtn.addEventListener('click', async () => {
+            const name = document.getElementById('name').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+            const town = document.getElementById('town').value.trim();
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+
+            if (name && surname && town && date && time) {
+                const { data, error } = await supabase.from('consultations').insert([{ name, surname, town, date, time }]);
+
+                if (error) {
+                    console.error("Error adding consultation:", error);
+                } else {
+                    addTableRow({ name, surname, town, date, time }); 
+                    document.getElementById('name').value = '';
+                    document.getElementById('surname').value = '';
+                    document.getElementById('town').value = '';
+                    document.getElementById('date').value = '';
+                    document.getElementById('time').value = '';
+                }
+            } else {
+                alert("Please fill out all fields.");
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

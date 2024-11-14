@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.min.css"
+  rel="stylesheet"
+/>
+
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+
+    <style>
+       :root{
+    --primary-color: #e60000;
+    --text-color: #1d1d1d;
+    --bg-color: #f1f1fb;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+}
+
+body{
+    background-color: #fff;
+}
+
+.container{
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar{
+  width: 100%;  
+  max-width: 600px;
+  padding: 30px 20px;
+  border-radius: 10px;
+  background-color: var(--bg-color);
+}
+
+.back{
+             text-align: left;
+           }
+
+        .back i{
+            color:#e60000 ;
+           font-size: 25px;
+           
+        }
+
+
+.calendar .header{
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 20px;
+   padding-bottom:20px ;
+   border-bottom: 2px solid #ccc;
+}
+
+.calendar .header .month{
+    display: flex;
+    align-items: center;
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.calendar .header .btns{
+    display: flex;
+    gap: 10px;
+}
+
+.calendar .header .btns .btn{
+  width: 50px; 
+  height: 40px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: #fff;
+  background-color:var(--primary-color) ;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.weekdays{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+
+}
+
+.weekdays .day{
+    width: calc(100%/7 - 10px);
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.days{
+   display: flex; 
+   flex-wrap: wrap;
+   gap: 10px;
+}
+
+.days .day{
+  width: calc(100%/7 - 10px);  
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size:16px ;
+  font-weight: 400;
+  color: var(--text-color);
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.days .day:not(.next):not(.prev):hover{
+    background-color: var(--primary-color);
+    color: #fff;
+
+}
+
+#today{
+    background-color: var(--primary-color);
+    color: #fff; 
+}
+
+.days .day.next,
+.days .day.prev{
+    color: #ccc;
+}
+
+
+.welcome-message, .closing-message {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+
+.days .day.today {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    position: relative;
+    animation: fadeIn 0.4s ease;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
+}
+
+.modal-content h2 {
+    font-size: 22px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+
+
+#new-todo {
+    flex-grow: 1;
+    padding: 10px 40px 10px 10px; 
+    outline: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+#add-todo-btn, #add-consultation-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    margin-top: 10px;
+    width: 100%;
+}
+
+#add-entry-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.no-tasks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 16px;
+    color: #aaa;
+    margin: 20px 0;
+}
+
+.no-tasks i {
+    font-size: 40px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+#todo-list {
+    list-style: none;
+    padding: 0;
+}
+
+#todo-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+#todo-list li button {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    
+}
+
+
+#add-todo-btn{
+    position: absolute;
+    right: 10px; 
+    padding: 8px 10px;
+    margin-bottom: 25px;
+    background-color: var(--primary-color);
+    color: #fff;
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-tasks {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--primary-color);
+    margin: 20px 0;
+}
+
+.no-tasks i {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.days .day.travel {
+    background-color: blue;
+    color: white;
+}
+
+.days .day.consultation {
+    background-color: yellow;
+    color: black;
+}
+
+.consultation-table-container {
+    margin-top: 20px;
+}
+
+#consultation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#consultation-table th, #consultation-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid var(--primary-color);
+}
+
+#consultation-table th {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#add-entry-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+#add-entry-btn:hover {
+    background-color: #d93c49;
+}
+
+.hour-slot {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    padding: 5px;
+    align-items: center;
+  }
+
+  .projects-btn{
+    width: auto;
+    padding: 10px 15px;
+    font-size: 12px;
+    font-weight:500;
+    background-color: var(--primary-color);
+    border-radius: 5px;
+    text-align: center;
+}
+
+.projects-btn a{
+    color: #fff;
+}
+
+  
+  .hour-label {
+    width: 50px;
+    text-align: right;
+    padding-right: 10px;
+    font-weight: 600;
+  }
+
+  .days .day.has-tasks {
+    background-color: yellow;
+    color: black;
+}
+
+  
+  .task-item {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 10px;
+    flex-grow: 1;
+  }
+  
+  .week-view-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 10px;
+  }
+  
+  .week-day-column {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .view-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  #task-view {
+    padding: 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+.tab-menu {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+.tab-btn {
+    background: #eee;
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+}
+.tab-btn.active {
+    background: #ddd;
+    font-weight: bold;
+}
+.tab-content {
+    display: none; 
+}
+
+@media (max-width: 600px) {
+    .calendar {
+        padding: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+    }
+
+    .month {
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .btns {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .projects-btn {
+       
+        padding: 8px 12px;
+        font-size: 12px;
+        text-align: center;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .days .day {
+        height: 45px;
+        font-size: 14px;
+    }
+
+    .projects-btn a {
+        font-size: 14px;
+    }
+}
+
+
+
+
+ 
+    </style>
+
+
+
+</head>
+<body>
+    <div class="container">
+       <div class="calendar">
+        <div class="back">
+            <a href="index.html"> <i class="ri-arrow-left-fill"></i></a>
+         </div>
+        <div class="welcome-message">Here’s your calendar for today.</div>
+        
+        <div class="header">
+            <div class="month"></div>
+            <div class="btns">
+                <div class="btn today-btn">
+                    <i class="ri-calendar-event-line"></i> 
+                </div>
+                <div class="btn prev-btn">
+                    <i class="ri-arrow-left-s-line"></i>
+                </div>
+                <div class="btn next-btn">
+                    <i class="ri-arrow-right-s-line"></i>
+                </div>
+                <div class="projects-btn">
+                    <a href="plumbingProjects.html">Projects</a>
+                </div> 
+            
+            </div>
+        </div>
+       <div class="weekdays">
+           <div class="day">Sun</div>
+           <div class="day">Mon</div>
+           <div class="day">Tue</div>
+           <div class="day">Wed</div>
+           <div class="day">Thu</div>
+           <div class="day">Fri</div>
+           <div class="day">Sat</div>
+       </div>
+
+       <div class="days"></div>
+    </div>
+
+    <div id="todo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>To-Do List for <span id="modal-date"></span></h2>
+            <div id="no-tasks-message" class="no-tasks">
+                <i class="ri-calendar-event-line"></i> No tasks for today.
+            </div>
+            <div class="input-container">
+                <input type="text" id="new-todo" placeholder="Add new to-do...">
+                <button id="add-todo-btn"><i class="fa fa-plus"></i></button>
+            </div>
+            <ul id="todo-list"></ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
+<script>
+   
+    const SUPABASE_URL = 'https://atdtvpgbvxmkmsjiakxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZHR2cGdidnhta21zamlha3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0NTUyNzYsImV4cCI6MjA0NzAzMTI3Nn0.NY_j9o7-sUgJe44x_9K8gTcYIJBt5F7vH2KgTdKWtoc';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const daysContainer = document.querySelector('.days');
+    const nextBtn = document.querySelector('.next-btn');
+    const prevBtn = document.querySelector('.prev-btn');
+    const month = document.querySelector('.month');
+    const todayBtn = document.querySelector('.today-btn');
+    const modal = document.getElementById("todo-modal");
+    const modalDate = document.getElementById("modal-date");
+    const todoList = document.getElementById("todo-list");
+    const newTodoInput = document.getElementById("new-todo");
+    const addTodoBtn = document.getElementById("add-todo-btn");
+    const closeBtn = document.querySelector(".close-btn");
+
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const date = new Date();
+    let currentMonth = date.getMonth();
+    let currentYear = date.getFullYear();
+    const today = `${date.getDate()}-${currentMonth + 1}-${currentYear}`;
+    const todos = {};
+
+    async function fetchTodosForDate(date) {
+        const { data, error } = await supabase
+            .from('plumbing-todo')
+            .select('*')
+            .eq('date', date);
+
+        if (error) {
+            console.error("Error fetching todos:", error);
+            return [];
+        }
+        return data;
+    }
+
+    async function loadTodos() {
+        const allDates = document.querySelectorAll('.day[data-date]');
+        for (let day of allDates) {
+            const date = day.getAttribute('data-date');
+            const todosForDate = await fetchTodosForDate(date);
+            todos[date] = todosForDate.map(todo => ({ text: todo.text, completed: todo.completed }));
+            if (todosForDate.length > 0) {
+                day.classList.add('has-tasks');
+            }
+        }
+    }
+
+    function renderCalendar() {
+        date.setDate(1);
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const prevLastDay = new Date(currentYear, currentMonth, 0).getDate();
+        const nextDays = 7 - new Date(currentYear, currentMonth + 1, 0).getDay() - 1;
+
+        month.innerHTML = `${months[currentMonth]} ${currentYear}`;
+
+        let days = '';
+        for (let x = firstDay; x > 0; x--) {
+            days += `<div class='day prev'>${prevLastDay - x + 1}</div>`;
+        }
+
+        for (let i = 1; i <= lastDay; i++) {
+            const fullDate = `${i}-${currentMonth + 1}-${currentYear}`;
+            days += `<div class='day${fullDate === today ? ' today' : ''}' data-date='${fullDate}'>${i}</div>`;
+        }
+
+        for (let j = 1; j <= nextDays; j++) {
+            days += `<div class='day next'>${j}</div>`;
+        }
+
+        daysContainer.innerHTML = days;
+
+        document.querySelectorAll('.day').forEach(day => {
+            day.addEventListener('click', openModal);
+        });
+
+        loadTodos(); 
+    }
+
+    renderCalendar();
+
+    nextBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar();
+    });
+
+    prevBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar();
+    });
+
+    function openModal(event) {
+        const selectedDate = event.currentTarget.getAttribute('data-date');
+        modalDate.innerText = selectedDate;
+        displayTodos(selectedDate);
+        modal.classList.add('show');
+    }
+
+    async function displayTodos(date) {
+        const todosForDate = await fetchTodosForDate(date);
+        todoList.innerHTML = '';
+        const noTasksMessage = document.getElementById("no-tasks-message");
+
+        if (todosForDate.length === 0) {
+            noTasksMessage.style.display = 'flex';
+        } else {
+            noTasksMessage.style.display = 'none';
+            todosForDate.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodoStatus('${todo.id}')">
+                    <span style="text-decoration: ${todo.completed ? 'line-through' : 'none'};">${todo.text}</span>
+                    <button onclick="deleteTodo('${todo.id}')">Delete</button>
+                `;
+                todoList.appendChild(li);
+            });
+        }
+    }
+
+    async function addTodo() {
+        const date = modalDate.innerText;
+        const newTodoText = newTodoInput.value.trim();
+        if (!newTodoText) {
+            alert("Please enter a to-do item!");
+            return;
+        }
+
+        const { data, error } = await supabase.from('plumbing-todo').insert([{ date, text: newTodoText, completed: false }]);
+        if (error) {
+            console.error("Error adding todo:", error);
+            return;
+        }
+
+        displayTodos(date);
+        newTodoInput.value = '';
+    }
+
+    async function toggleTodoStatus(id) {
+        const { data, error } = await supabase
+            .from('plumbing-todo')
+            .select('completed')
+            .eq('id', id)
+            .single();
+
+        if (data) {
+            await supabase.from('plumbing-todo').update({ completed: !data.completed }).eq('id', id);
+            displayTodos(modalDate.innerText);
+        }
+    }
+
+    async function deleteTodo(id) {
+        await supabase.from('plumbing-todo').delete().eq('id', id);
+        displayTodos(modalDate.innerText);
+    }
+
+    todayBtn.addEventListener('click', () => {
+        openModal({ currentTarget: { getAttribute: () => today } });
+    });
+
+    addTodoBtn.addEventListener('click', addTodo);
+    closeBtn.onclick = () => modal.classList.remove('show');
+</script>
+</body>
+
+</html>
