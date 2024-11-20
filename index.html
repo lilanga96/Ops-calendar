@@ -454,59 +454,91 @@ function closeAuthModal() {
 
 
 async function signUp() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const { error } = await supabase.auth.signUp({ email, password });
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    
+    if (!email.endsWith('@isintu.org.za')) {
+        alert('Please use a valid isintu.org.za email address to sign up.');
+        return;
+    }
+
+   
+    const redirectTo = 'https://opscalendar.netlify.app/';
+
+    const { error } = await supabase.auth.signUp(
+        { email, password },
+        { options: { emailRedirectTo: redirectTo } }
+    );
 
     if (error) {
         console.error('Sign Up Error:', error.message);
+        alert('Error during sign-up: ' + error.message);
     } else {
-        alert('Sign up successful.');
-        signIn(email, password);
+        alert('Sign-up successful! Please confirm your email to complete registration.');
+        showAuthModal(); 
     }
 }
 
-async function signIn(email = null, password = null) {
-   
-    email = email || document.getElementById('email').value;
-    password = password || document.getElementById('password').value;
 
-  
+async function signIn(email = null, password = null) {
+    email = email || document.getElementById('email').value.trim();
+    password = password || document.getElementById('password').value.trim();
+
     if (!email || !password) {
         alert('Please enter both email and password.');
-        return; 
+        return;
     }
 
-   
     const { session, error } = await supabase.auth.signInWithPassword({ email, password });
 
-   
     if (error) {
         console.error('Login Error:', error.message);
         alert('Invalid email or password. Please try again.');
     } else {
         isAuthenticated = true;
+        alert('Login successful!');
         closeAuthModal();
         toggleCalendarInteraction(false);
         updateAuthButton();
-        alert('Login successful!');
     }
 }
-
 
 
 async function checkUserSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    isAuthenticated = !!session;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('access_token');
 
-    if (isAuthenticated) {
-        closeAuthModal();
-        toggleCalendarInteraction(false); 
+    if (accessToken) {
+       
+        const { data, error } = await supabase.auth.setSession({ access_token: accessToken });
+        if (error) {
+            console.error("Error setting session with token:", error.message);
+            showAuthModal();
+            return;
+        }
+
+        isAuthenticated = true;
+        alert('Email confirmed and logged in successfully!');
+        window.history.replaceState({}, document.title, "/"); 
+        toggleCalendarInteraction(false);
+        updateAuthButton();
     } else {
-        showAuthModal();
-        toggleCalendarInteraction(true); 
+        
+        const { data, error } = await supabase.auth.getSession();
+        isAuthenticated = !!data.session;
+
+        if (!isAuthenticated) {
+            showAuthModal();
+            toggleCalendarInteraction(true);
+        } else {
+            closeAuthModal();
+            toggleCalendarInteraction(false);
+        }
     }
 }
+
 
 
 
@@ -530,18 +562,21 @@ function handleAuthAction() {
 
 
 async function signOut() {
-   
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error("Logout error:", error.message);
-    } else {
+    try {
+        
+        await supabase.auth.signOut(); 
+    } catch (error) {
+        console.warn("Sign-out error:", error.message);
+    } finally {
+       
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.removeItem('supabase.auth.token');
         isAuthenticated = false;
         updateAuthButton();
-        showAuthModal(); 
+        showAuthModal();
         alert('Logged out successfully.');
     }
 }
-
 function preventUnauthorizedAccess() {
     const calendarContainer = document.getElementById('allCalendars');
     if (!isAuthenticated) {
